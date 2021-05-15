@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        // 数组扁平化
+        const arr = [
+            [0, 1],
+            [2, [3, 4, [5, 6]]], 7
+        ];
+        console.log("arr 降维前", arr);
+
+        // flat方法
+        // 传入的参数表示降维层数
+        const arr1 = arr.flat(Infinity);
+        console.log("arr1", arr1);
+
+        // 正则
+        // 转化完成之后是字符串
+        const arr2 = JSON.stringify(arr).replace(/\[|\]/g, " ").split(",");
+        console.log("arr2", arr2);
+        // 改良版正则
+        const arr3 = JSON.parse("[" + JSON.stringify(arr).replace(/\[|\]/g, " ") + "]");
+        console.log("arr3", arr3);
+
+        // reduce 
+        // array.reduce((t, v, i, a) => {}, initValue)
+        // 参数
+        // callback：回调函数(必选)
+        // initValue：初始值(可选)
+        // 回调函数的参数
+        // total(t)：累计器完成计算的返回值(必选)
+        // value(v)：当前元素(必选)
+        // index(i)：当前元素的索引(可选)
+        // array(a)：当前元素所属的数组对象(可选)
+        // 以t作为累计结果的初始值，不设置t则以数组第一个元素为初始值
+        // 开始遍历，使用累计器处理v，将v的映射结果累计到t上，结束此次循环，返回t
+        // 进入下一次循环，重复上述操作，直至数组最后一个元素
+        // 结束遍历，返回最终的t
+        const flatten = arr => {
+            return arr.reduce((pre, cur) => {
+                // Array.isArray() 用于确定传递的值是否是一个 Array，返回 true 或者 false
+                // concat用于连接数组
+                return pre.concat(Array.isArray(cur) ? flatten(cur) : cur);
+                // [] 表示初值pre是一个空数组数组
+            }, [])
+        }
+        const arr4 = flatten(arr);
+        console.log("arr4", arr4);
+
+        // forEach
+        const arr5 = [];
+        const ergodic = (arr) => {
+            arr.forEach((item) => {
+                if (Array.isArray(item)) {
+                    ergodic(item);
+                } else {
+                    arr5.push(item);
+                }
+            })
+        }
+        ergodic(arr);
+        console.log("arr5", arr5);
+
+        // ____________________________________________________________________________
+        // 数组去重
+        const arr6 = [0, 1, 1, 2, 2, 3, 3, 4, 4];
+        console.log("arr6 去重复前", arr6);
+
+        // set 
+        const arr7 = Array.from(new Set(arr6));
+        console.log("arr7", arr7);
+        // for循环
+        const fun = arr => {
+            for (let i = 0; i < arr.length; i++) {
+                for (let j = i + 1; j < arr.length; j++) {
+                    if (arr[i] === arr[j]) {
+                        arr.splice(j, 1);
+                    }
+                }
+            }
+            return arr;
+        }
+        const arr8 = fun(arr6);
+        console.log("arr8", arr8);
+        // indexof
+        const fun1 = (arr, arr1) => {
+            for (let i = 0; i < arr.length; i++) {
+                if (arr1.indexOf(arr[i]) === -1) {
+                    arr1.push(arr[i]);
+                }
+            }
+            return arr1;
+        }
+        const arr9 = [];
+        fun1(arr6, arr9);
+        console.log("arr9", arr9);
+        // include
+        // 查找的目标 
+        // 从哪里开始查[可不写]
+        const fun2 = (arr, arr1) => {
+            for (let i = 0; i < arr.length; i++) {
+
+                if (!arr1.include(arr[i])) {
+                    arr1.push(arr[i]);
+                }
+            }
+            return arr1;
+        }
+        const arr10 = [];
+        fun1(arr6, arr10);
+        console.log("arr10", arr10);
+
+        //filter
+        // 当前元素
+        // 当前元素下标
+        // 当前元素数组
+        const fun3 = arr => {
+            return arr.filter((item, index) => {
+                // 当下标和索引相同时返回
+                // ifdexOf只返回第一次出现的位置
+                return arr.indexOf(item) === index;
+            })
+        }
+        const arr11 = fun3(arr6);
+        console.log("arr11", arr11);
+
+        //Map
+        const fun4 = (arr, arr1) => {
+            const map = new Map();
+            for (let i = 0; i < arr.length; i++) {
+                if (!map.has(arr[i])) {
+                    map.set(arr[i], true);
+                    arr1.push(arr[i]);
+                }
+            }
+            return arr1;
+        }
+        const arr12 = [];
+        fun4(arr6, arr12);
+        console.log("arr12", arr12);
+
+        // 伪数组转换成数组
+        // Array.from(伪数组);
+        // Array.prototype.slice.call(伪数组);
+        // [...伪数组];
+        // Array.prototype.concat.apply([],伪数组);
+
+        // Array.prototype.filter
+        if (!Array.prototype.filter) {
+            // thisArg是func指行时的this指向
+            Array.prototype.filter = function(func, thisArg) {
+                'use strict';
+                // 判断是不是函数和有没有this指向
+                if (!((typeof func === 'Function' || typeof func === 'function') && this))
+                    throw new TypeError();
+                // 确认len为非负整数
+                var len = this.length >>> 0;
+                // 
+                var res = new Array(len); // preallocate array
+                var t = this,
+                    c = 0,
+                    i = -1;
+
+                var kValue;
+                if (thisArg === undefined) {
+                    while (++i !== len) {
+                        // checks to see if the key was set
+                        if (i in this) {
+                            kValue = t[i]; // in case t is changed in callback
+                            if (func(t[i], i, t)) {
+                                res[c++] = kValue;
+                            }
+                        }
+                    }
+                } else {
+                    while (++i !== len) {
+                        // checks to see if the key was set
+                        if (i in this) {
+                            kValue = t[i];
+                            if (func.call(thisArg, t[i], i, t)) {
+                                res[c++] = kValue;
+                            }
+                        }
+                    }
+                }
+                res.length = c; // shrink down array to proper size
+                return res;
+            };
+        }
+
+        // Array.prototype.map
+        if (!Array.prototype.map) {
+            Array.prototype.map = function(callback, thisArg) {
+                var T, A, k;
+                if (this == null) {
+                    throw new TypeError(" this is null or not defined");
+                }
+                // 1. 将O赋值为调用map方法的数组.
+                var O = Object(this);
+                // 2.将len赋值为数组O的长度.
+                var len = O.length >>> 0;
+                // 3.如果callback不是函数,则抛出TypeError异常.
+                if (Object.prototype.toString.call(callback) != "[object Function]") {
+                    throw new TypeError(callback + " is not a function");
+                }
+                // 4. 如果参数thisArg有值,则将T赋值为thisArg;否则T为undefined.
+                if (thisArg) {
+                    T = thisArg;
+                }
+                // 5. 创建新数组A,长度为原数组O长度len
+                A = new Array(len);
+                // 6. 将k赋值为0
+                k = 0;
+                // 7. 当 k < len 时,执行循环.
+                while (k < len) {
+                    var kValue, mappedValue;
+                    //遍历O,k为原数组索引
+                    if (k in O) {
+                        //kValue为索引k对应的值.
+                        kValue = O[k];
+                        // 执行callback,this指向T,参数有三个.分别是kValue:值,k:索引,O:原数组.
+                        mappedValue = callback.call(T, kValue, k, O);
+                        // 返回值添加到新数组A中.
+                        A[k] = mappedValue;
+                    }
+                    // k自增1
+                    k++;
+                }
+                // 8. 返回新数组A
+                return A;
+            };
+        }
+
+        // Array.prototype.forEach
+        if (!Array.prototype.forEach) {
+            Array.prototype.forEach = function(callback, thisArg) {
+                var T, k;
+                if (this == null) {
+                    throw new TypeError(' this is null or not defined');
+                }
+                // 1. Let O be the result of calling toObject() passing the
+                // |this| value as the argument.
+                var O = Object(this);
+                // 2. Let lenValue be the result of calling the Get() internal
+                // method of O with the argument "length".
+                // 3. Let len be toUint32(lenValue).
+                var len = O.length >>> 0;
+                // 4. If isCallable(callback) is false, throw a TypeError exception.
+                // See: http://es5.github.com/#x9.11
+                if (typeof callback !== "function") {
+                    throw new TypeError(callback + ' is not a function');
+                }
+                // 5. If thisArg was supplied, let T be thisArg; else let
+                // T be undefined.
+                if (arguments.length > 1) {
+                    T = thisArg;
+                }
+                // 6. Let k be 0
+                k = 0;
+                // 7. Repeat, while k < len
+                while (k < len) {
+                    var kValue;
+                    // a. Let Pk be ToString(k).
+                    //    This is implicit for LHS operands of the in operator
+                    // b. Let kPresent be the result of calling the HasProperty
+                    //    internal method of O with argument Pk.
+                    //    This step can be combined with c
+                    // c. If kPresent is true, then
+                    if (k in O) {
+                        // i. Let kValue be the result of calling the Get internal
+                        // method of O with argument Pk.
+                        kValue = O[k];
+                        // ii. Call the Call internal method of callback with T as
+                        // the this value and argument list containing kValue, k, and O.
+                        callback.call(T, kValue, k, O);
+                    }
+                    // d. Increase k by 1.
+                    k++;
+                }
+                // 8. return undefined
+            };
+        }
+
+        // Array.prototype.reduce
+        if (!Array.prototype.reduce) {
+            Object.defineProperty(Array.prototype, 'reduce', {
+                value: function(callback /*, initialValue*/ ) {
+                    if (this === null) {
+                        throw new TypeError('Array.prototype.reduce ' +
+                            'called on null or undefined');
+                    }
+                    if (typeof callback !== 'function') {
+                        throw new TypeError(callback +
+                            ' is not a function');
+                    }
+                    // 1. Let O be ? ToObject(this value).
+                    var o = Object(this);
+                    console.log(o)
+                        // 2. Let len be ? ToLength(? Get(O, "length")).
+                    var len = o.length >>> 0;
+                    // Steps 3, 4, 5, 6, 7
+                    var k = 0;
+                    var value;
+                    if (arguments.length >= 2) {
+                        value = arguments[1];
+                    } else {
+                        while (k < len && !(k in o)) {
+                            k++;
+                        }
+                        // 3. If len is 0 and initialValue is not present,
+                        //    throw a TypeError exception.
+                        if (k >= len) {
+                            throw new TypeError('Reduce of empty array ' +
+                                'with no initial value');
+                        }
+                        value = o[k++];
+                    }
+                    // 8. Repeat, while k < len
+                    while (k < len) {
+
+                        if (k in o) {
+                            value = callback(value, o[k], k, o);
+                        }
+                        // d. Increase k by 1.
+                        k++;
+                    }
+                    // 9. Return accumulator.
+                    return value;
+                }
+            });
+        }
+
+        // Function.prototype.apply
+        Function.prototype.apply = function(context) {
+            // 这时候this指向还没有变
+            context = context || window;
+            // 给context添加一个方法
+            // 把this指向赋给context.func
+            context.func = this;
+            let result;
+            // 需要判断是否存储第二个参数
+            // 如果存在，就将第二个参数展开
+            if (arguments[1]) {
+                result = context.func(...arguments[1])
+            } else {
+                result = context.func()
+            }
+            // 删除func，防止改写对象
+            delete context.func
+            return result
+        };
+
+        // Function.prototype.call
+        Function.prototype.call = function(context) {
+            // 这时候this指向还没有变
+            context = context || window;
+            // 给context添加一个方法
+            // getValue.call(a, 'user1', '24') => a.func = getValue
+            // 把this指向赋给context.func
+            context.func = this;
+            // 把传入的参数保存起来，第一个是this指向，不需要保存
+            let args = [...arguments].slice(1);
+            // 执行参数
+            let result = context.func(...args);
+            // 删除func，防止改写对象
+            delete context.func;
+            // 返回执行结果
+            return result
+        }
+
+        // Function.prototype.bind
+        Function.prototype.bind = function(context) {
+            // 判断传进来的是不是函数
+            if (typeof this !== 'function') {
+                throw new TypeError('Error')
+            }
+            // 改变this指向
+            let _this = this
+                // 获取传进来的参数
+            let args = [...arguments].slice(1);
+            // 返回一个函数
+            return function F() {
+                // 因为返回了一个函数，我们可以 new F()，所以需要判断
+                if (this instanceof F) {
+                    // 把this指向新对象
+                    return new _this(...args, ...arguments)
+                }
+                // 改变this指向，参数合并数组
+                return _this.apply(context, args.concat(...arguments))
+            }
+        }
+
+        // 防抖
+        // 一个事件在触发后，在规定的时间后指行，如果在时间内触发，则重新计时
+        // 输入框
+        const debounce = (fn, time = 300) => {
+            let timer = null;
+            return function() {
+                clearTimeout(timer);
+                timer = setTimeout(() => {
+                    fn();
+                }, time)
+            }
+        }
+
+        // 节流
+        // 一个事件发生后，在规定的时间内不能再触发
+        // 常用于鼠标和滚动条
+        const throttle = (fu, time = 300) => {
+            let flag = true;
+            if (!flag) return;
+            flag = false;
+            setTimeout(() => {
+                fn();
+                flag = true;
+            }, time);
+        }
+
+        // 函数柯里化
+        // 接收参数不固定，将其变为接收一个参数的形式
+        // 实现 add(1)(2)(3)(4) 和 add(1)(2,3,4)(5)
+        function add() {
+            // 把参数给.args
+            const args = [...arguments];
+
+            function fun() {
+                // 把参数添加到args
+                args.push(...arguments);
+                return fun;
+            }
+            fun.toString = function() {
+                return args.reduce((pre, cur) => pre + cur)
+            };
+            // 返回的是一个函数
+            return fun;
+        }
+        console.log(add(1)(2)(3)(4), add(1)(2, 3, 4)(5));
+
+        // new
+        function myNew(ctor, ...args) {
+            // 判断传进来的是不是对象
+            if (typeof ctor !== "function") {
+                throw new TypeError("Type Error");
+            }
+            // 创建对象
+            const obj = Object.create(ctor.prototype);
+            // 改变this指向
+            const res = ctor.apply(obj, args);
+            // 判断是不是对象，this指向是否为空
+            const isObject = typeof obj === "object" && res !== null;
+            // 判断是不是函数对象
+            const isFunction = typeof obj === "function";
+            return isObject || isFunction ? obj : res;
+        }
+        // 测试
+        let fun5 = myNew(Array);
+        fun5[0] = 1;
+        console.log(fun5);
+
+        // instanceof
+        // 实例 instanceof 类型
+        // 用于检测构造函数的原型对象是否出现在实例对象的原型链上
+        // 如果基本数据不是构造函数声明的，则判断不出来，引用类型不管是不是都可以
+        // 能判断出数组，日期等对象
+        // l 是实例 r 是类型
+        const myinstanceof = (l, r) => {
+            if (typeof l === 'string' || l === null || typeof l === 'number' || typeof l === 'undefind' || typeof l === 'boolean') return false;
+            // 返回指定对象的原型
+            let pro = l.__proto__;
+            while (true) {
+                if (pro === null) return false;
+                if (pro === r.prototype) return true;
+                pro = pro.__proto__;
+            }
+        }
+        console.log(myinstanceof(fun5, Array));
+        console.log(fun5 instanceof Array);
+
+        // toString = Object.protoType.toString
+        // toString.call(判断的对象)；
+        let toString = Object.prototype.toString;
+        // [object Number] [object String] [object Function]
+        // console.log(toString.apply(1), toString.apply("str"), toString.apply(fun));
+
+        // 原型继承
+        // 父类
+        function Parent(name) {
+            this.name = name;
+        };
+        // 子类
+        // function Child(name, age) {
+        //     Parent.call(this, [name]);
+        //     this.age = age;
+        // };
+        // 父类的say方法
+        Parent.prototype.say = function() {
+            console.log(this.name);
+        };
+        // 子类的原型方法继承要先于方法
+        Child.prototype = new Parent();
+        // 子类继承
+        function Child(name, age) {
+            Parent.apply(this, [name]);
+            this.age = age;
+        }
+        // 子类的age方法
+        Child.prototype.getage = function() {
+            console.log(this.age);
+        };
+        let p = new Parent("bigq");
+        let c = new Child("middle", 18);
+        p.say();
+        c.say();
+        c.getage();
+
+        // Object.is
+        // 解决 +0===-0 //true 实际应该是false
+        // NaN === NaN //false;
+        const is = (x, y) => {
+            if (x === y) {
+                return x !== 0 || y !== 0 || 1 / x === 1 / y;
+            } else {
+                return x === x && y === y;
+            }
+        }
+        console.log(is(+0, -0), is(NaN, NaN), is(1, 1));
+
+        // 浅拷贝
+        // Object.assign()
+        Object.defineProperty(Object, 'assign', {
+            value: function(target, ...args) {
+                if (target == null) {
+                    return new TypeError("Error");
+                };
+                // 目标对象是统一的数据格式
+                const o = Object(target);
+                for (let i = 0; i < args.length; i++) {
+                    const nextSouce = args[i];
+                    if (nextSouce !== null) {
+                        for (const nextKey in nextSouce) {
+                            if (Object.prototype.hasOwnProperty.call(nextSouce, nextKey)) {
+                                to[nextKey] = nextSouce[nextKey];
+                            };
+                        }
+                    }
+                }
+                return o;
+            },
+            enumerable: false,
+            writable: false,
+            configurable: true
+        })
+
+        // 深拷贝
+        // WeakMap 是只接受对象作为健（null除外）
+        const cloneDeep = (target, hash = new WeakMap()) => {
+            // 对传进来数据处理
+            if (typeof target !== 'object' || target === null) return target;
+            // hash 表中存在，返回
+            if (hash.has(target)) return hash.get(target);
+            // 产生对象
+            const cloneTarget = Array.isArray(target) ? [] : {};
+            // 进行拷贝
+            for (const i in target) {
+                if (Object.prototype.hasOwnProperty.call(target, i)) {
+                    cloneTarget[i] = typeof target[i] === 'object' && target !== null ? cloneDeep(target[i], hash) : target[i];
+                }
+            }
+            return cloneTarget;
+        }
+        const arrk = cloneDeep(arr);
+        arrk.push("我是深拷贝");
+        console.log(arrk);
+
+        // Promise
+        // 解决回调地狱，在回调函数中嵌套函数，常用于异步
+        // 接收俩个函数作为参数，一个是resolve,另一个reject
+        // 有两个属性 state(状态) 和 result(结果)
+        // 有三种状态（通过接收的参数改变状态）状态只能进行一次改变
+        // 状态不发生改变则不会执行then方法
+        // padding(进行中) 没有执行回调函数前的状态
+        // fulfilled(已完成，成功) 通过成功执行resolve()
+        // rejected(拒绝，失败) 通过成功执行reject()
+        // 通过回调函数的参数来改变结果
+        // 方法 ：then() catch() 
+        // then() 参数是两个函数，成功时调用第一个，失败时调用第二个 返回值是一个Promise对象，状态是padding
+        // 使用return可以把返回的promise的状态改变为fulfilled
+        // catch() 参数是一个函数，当状态是rejected时执行，或代码出错会执行
+        new Promise((resolve, reject) => {}).then(value => console.log(value)).catch(reason => console.log(reason));
+        // all() 包含n个promise对象，只有全部成功后才成功，返回成功的结果集，失败则返回失败的promise
+        Promise.myAll = function(arr) {
+            return new Promise((resolve, reject) => {
+                const ans = [];
+                let index = 0;
+                for (let i = 0; i < arr.length; i++) {
+                    arr[i].then(res => {
+                        ans[i] = res;
+                        index++;
+                        if (index === arr.length) {
+                            resolve(ans);
+                        }
+                    }).catch(err => {
+                        reject(err);
+                    })
+                }
+            })
+        };
+        // race() 只要有一个完成或失败就直接返回结果
+        Promise.myRace = function(arr) {
+            return new Promise((resolve, reject) => {
+                arr.forEach(p => {
+                    Promise.resolve(p).then(
+                        value => {
+                            resolve(value);
+                        },
+                        err => {
+                            reject(err);
+                        }
+                    )
+                })
+            })
+        }
+
+        // jsonp
+        // script标签可以用来进行跨域请求，但仅限于get请求
+        const jsonp = ({
+            url,
+            params,
+            callback
+        }) => {
+            const generateUrl = () => {
+                let dataSrc = "";
+                for (let key in params) {
+                    if (Object.prototype.hasOwnProperty.call(params, key)) {
+                        dataSrc += `${key}=${params[key]}&`;
+                    }
+                }
+                dataSrc += `callback=${callback}`;
+                return `${url}?${dataSrc}`;
+            }
+            return new Promise((resolve, reject) => {
+                const srcElement = document.createElement("script");
+                document.body.appendChild(srcElement);
+                srcElement.url = generateUrl();
+                window[callback] = data => {
+                    resolve(data);
+                    document.removeChild(srcElement);
+                }
+            })
+        }
+    </script>
+</body>
+
+</html>

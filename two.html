@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        html,
+        body {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        body {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #box1 {
+            width: 100px;
+            height: 100px;
+            background-color: aqua;
+            /* position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); */
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 
+        盒子水平和垂直居中
+        1.  定位 
+            给父元素加相对定位
+            自己加绝对定位
+            1) left right top bottom =0,marjin :auto
+            2) left 50%,top 50%, marjin-top,marjin-left;
+            3) left 50%,top 50%, transform: translate(-50%, -50%);
+        2.  display:flex 
+            给父元素加 display:flex
+            jcc aic
+
+        盒模型
+        1.  标准盒
+            box-sizing: content-box;
+        2.  怪异盒
+            box-sizing:border-box;
+        3.  flex 
+
+        布局
+        左定右定中间自适应
+        1.  有一个容器，容器中有三个盒子
+            定位
+     -->
+    <div id="box1"></div>
+    <script>
+    </script>
+</body>
+
+</html>
